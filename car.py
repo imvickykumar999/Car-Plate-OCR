@@ -1,14 +1,32 @@
 import numpy as np
-import cv2, time
+import cv2, time, os
 
-def number_plate(inputimage = 'test.jpg'):
+def number_plate(para = 0):
+
+    try:
+        os.mkdir('\image')
+        print('\nImage directory created...')
+        time.sleep(1)
+    except:
+        pass
+
+    from vicky import webcam as w
+
+    # para = 0
+    # para = 'http://192.168.1.114:8080/video'
+    try:
+        found = w.save_car(para)
+        print(found)
+    except:
+        pass
+
     confidenceThreshold = 0.5
     NMSThreshold = 0.3
 
     modelConfiguration = 'files/yolov3.cfg'
     modelWeights = 'files/yolov3.weights'
 
-    # inputimage = 'download.jpg'
+    inputimage = 'input.jpg'
     # inputimage = input('\nEnter Image path : ')
 
     labelsPath = 'files/coco.names'
@@ -60,6 +78,7 @@ def number_plate(inputimage = 'test.jpg'):
             if detected == 'car':
                 count+=1
                 a,b,c,d = x,y,w,h
+                cv2.imwrite('image/croped car.jpeg', image[b:b+d, a:a+c])
 
             color = [int(c) for c in COLORS[classIDs[i]]]
             cv2.rectangle(image, (x, y), (x + w, y + h), color, 2)
@@ -69,7 +88,6 @@ def number_plate(inputimage = 'test.jpg'):
         print('\nThere are ', count, ' Cars, visible in frame...')
 
     # cv2.imshow('Image', image)
-    cv2.imwrite('image/croped car.jpeg', image[b:b+d, a:a+c])
     # cv2.waitKey(0)
 
     # time.sleep(5)
@@ -77,6 +95,7 @@ def number_plate(inputimage = 'test.jpg'):
 
     from vicky import crop_plate as crop
     loop = crop.plate()
+    print(loop)
 
     from vicky import vicksocr as vix
     text = vix.ocr(loop)
@@ -90,9 +109,12 @@ def number_plate(inputimage = 'test.jpg'):
 
     a = [len(i) for i in data]
     i = a.index(max(a))
+
+    # import shutil
+    # shutil.rmtree('\image')
+    # print('\nDeleted all cropped files...')
     return data[i].strip()
 
-# print(data)
 
-# inputimage = 'test.jpg'
-# number_plate(inputimage)
+# licence = number_plate('http://192.168.1.114:8080/video')
+# print(licence)
